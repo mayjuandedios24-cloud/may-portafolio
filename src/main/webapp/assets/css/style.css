@@ -1,0 +1,187 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body.fantasy-bg {
+    background: radial-gradient(circle at 30% 50%, #1e1b4b 0%, #090817 100%);
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 50px;
+}
+
+.brand-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.btn-login-glow {
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(167, 139, 250, 0.5);
+    color: #e2e8f0;
+    padding: 8px 22px;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-login-glow:hover {
+    background: #7c3aed;
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.8);
+}
+
+.main-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 70px;
+    padding: 0 60px;
+}
+
+.magic-book {
+    width: 260px;
+    height: 350px;
+    background: linear-gradient(135deg, #312e81 0%, #0f172a 100%);
+    border: 3px solid #818cf8;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 35px rgba(99, 102, 241, 0.4);
+}
+
+.star-core {
+    width: 55px;
+    height: 55px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 25px #ffffff, 0 0 50px #818cf8;
+}
+
+.info-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 550px;
+}
+
+.game-title {
+    font-family: 'Cinzel', serif;
+    font-size: 4.5rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.author-badge {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0f172a;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 4px;
+    width: fit-content;
+    margin: 15px 0;
+}
+
+.divider-line {
+    width: 100%;
+    height: 2px;
+    background: #818cf8;
+    margin-bottom: 15px;
+}
+
+.intro-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+/* Modal Estilo Circo / Neón */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 5, 15, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #090817;
+    border: 3px solid #ff007f;
+    border-radius: 20px;
+    padding: 30px;
+    width: 380px;
+    box-shadow: 0 0 35px rgba(255, 0, 127, 0.5);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute; top: 15px; right: 20px;
+    background: none; border: none; color: #ffffff; font-size: 1.5rem; cursor: pointer;
+}
+
+.login-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-form { display: flex; flex-direction: column; gap: 15px; }
+.input-group { display: flex; flex-direction: column; gap: 5px; }
+.input-group label { font-size: 0.7rem; color: #cbd5e1; }
+.input-group input {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(129, 140, 248, 0.4);
+    border-radius: 6px; padding: 10px; color: #ffffff; outline: none;
+}
+
+.terms-group { display: flex; align-items: center; gap: 8px; color: #cbd5e1; }
+
+.btn-submit-login {
+    background: linear-gradient(135deg, #4f46e5, #3730a3);
+    color: #ffffff; border: 1px solid #818cf8; border-radius: 6px;
+    padding: 10px; font-weight: 600; cursor: pointer; letter-spacing: 2px;
+}
+
+/* Capa de Transición (Ilusión del Circo) */
+.circus-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, #3b0764 0%, #000000 100%);
+    z-index: 2000;
+    flex-direction: column; justify-content: center; align-items: center;
+}
+
+.portal-vortex {
+    width: 120px; height: 120px;
+    border: 6px dashed #ec4899; border-radius: 50%;
+    animation: spinVortex 1.5s linear infinite;
+    margin-bottom: 20px;
+}
+
+.transition-text {
+    font-family: 'Cinzel', serif; color: #ffffff; letter-spacing: 3px; font-size: 1rem;
+}
+
+@keyframes spinVortex {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); border-color: #38bdf8; }
+    100% { transform: rotate(360deg) scale(1); }
+}

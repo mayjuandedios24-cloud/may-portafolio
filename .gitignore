@@ -1,0 +1,68 @@
+# =====================================================================
+# .gitignore – Portafolio Académico LMS  (Java / Servlet / JSP / Tomcat)
+# =====================================================================
+
+# ── Maven build output ───────────────────────────────────────────────
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ── Maven wrapper JAR (regenerado automáticamente) ───────────────────
+.mvn/wrapper/maven-wrapper.jar
+
+# ── Carpetas de trabajo de Tomcat embebido ───────────────────────────
+tomcat.*/
+tomcat-temp/
+work/
+conf/
+logs/
+temp/
+
+# ── Archivos de subidas de usuarios (binarios generados en runtime) ──
+src/main/webapp/uploads/
+uploads/
+
+# ── Credenciales y variables de entorno sensibles ────────────────────
+.env
+.env.*
+!.env.example
+
+# ── IntelliJ IDEA ────────────────────────────────────────────────────
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# ── Eclipse / STS ────────────────────────────────────────────────────
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# ── VS Code ──────────────────────────────────────────────────────────
+.vscode/
+
+# ── NetBeans ─────────────────────────────────────────────────────────
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ── Archivos del SO ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs de aplicación ───────────────────────────────────────────────
+*.log
+*.log.*
+
+# ── Archivos de ayuda generados (no necesarios en repo) ──────────────
+HELP.md
