@@ -11,7 +11,8 @@ import java.io.File;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        // Leer puerto desde variable de entorno PORT (utilizado por plataformas cloud como Render)
+        // Leer puerto desde variable de entorno PORT (utilizado por plataformas cloud
+        // como Render)
         String envPort = System.getenv("PORT");
         int port = (envPort != null && !envPort.trim().isEmpty()) ? Integer.parseInt(envPort.trim()) : 8080;
 
@@ -26,11 +27,18 @@ public class Main {
 
         StandardContext ctx = (StandardContext) tomcat.addWebapp("", webappDir);
 
-        File additionWebInfClasses = new File("target/classes");
-        if (additionWebInfClasses.exists()) {
+        File classesDir = new File("classes");
+        if (!classesDir.exists()) {
+            classesDir = new File("target/classes");
+        }
+
+        if (classesDir.exists()) {
             WebResourceRoot resources = new StandardRoot(ctx);
-            resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes",
-                    additionWebInfClasses.getAbsolutePath(), "/"));
+            resources.addPreResources(new DirResourceSet(
+                    resources,
+                    "/WEB-INF/classes",
+                    classesDir.getAbsolutePath(),
+                    "/"));
             ctx.setResources(resources);
         }
 
