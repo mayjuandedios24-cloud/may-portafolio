@@ -1,16 +1,21 @@
 package com.example.demo.config;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 public class DBConnection {
 
-    private static String url = "jdbc:mysql://bqenrefor3qwi6hqj6hz-mysql.services.clever-cloud.com:3306/bqenrefor3qwi6hqj6hz?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-    private static String user = "uo7hvyboj7v7c9ml";
-    private static String password = "UyqXX4wSgor64soRp45U";
+    private static String url = "jdbc:mysql://localhost:3306/bd_portafolio?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+    private static String user = "root";
+    private static String password = "";
     private static String driver = "com.mysql.cj.jdbc.Driver";
 
     static {
@@ -23,28 +28,12 @@ public class DBConnection {
     }
 
     private static void cargarConfiguracion() {
-        // 1. Intentar cargar desde variables de entorno (útil para Render / Heroku / Railway / Docker)
-        String envDbUrl = System.getenv("DATABASE_URL");
-        if (envDbUrl == null) {
-            envDbUrl = System.getenv("DB_URL");
-        }
-        String envDbUser = System.getenv("DB_USER");
-        String envDbPass = System.getenv("DB_PASSWORD");
-
-        if (envDbUrl != null && !envDbUrl.trim().isEmpty()) {
-            url = envDbUrl.trim();
-            if (envDbUser != null) user = envDbUser.trim();
-            if (envDbPass != null) password = envDbPass.trim();
-            System.out.println("[DBConnection] Configuración cargada desde variables de entorno.");
-            return;
-        }
-
-        // 2. Cargar desde application.properties
+        // 1. Cargar desde application.properties como base/fallback local
         try (InputStream input = DBConnection.class.getClassLoader().getResourceAsStream("application.properties")) {
             if (input != null) {
                 Properties prop = new Properties();
                 prop.load(input);
-                if (prop.getProperty("db.url") != null) {
+                if (prop.getProperty("db.url") != null && !prop.getProperty("db.url").trim().isEmpty()) {
                     url = prop.getProperty("db.url").trim();
                 }
                 if (prop.getProperty("db.user") != null) {
@@ -53,13 +42,53 @@ public class DBConnection {
                 if (prop.getProperty("db.password") != null) {
                     password = prop.getProperty("db.password").trim();
                 }
-                if (prop.getProperty("db.driver") != null) {
+                if (prop.getProperty("db.driver") != null && !prop.getProperty("db.driver").trim().isEmpty()) {
                     driver = prop.getProperty("db.driver").trim();
                 }
-                System.out.println("[DBConnection] Configuración cargada desde application.properties.");
             }
         } catch (Exception e) {
             System.err.println("[DBConnection] Aviso al leer application.properties: " + e.getMessage());
+        }
+
+        // 2. Sobrescribir con variables de entorno (Render / TiDB Cloud / etc.)
+        String envDbUrl = System.getenv("DATABASE_URL");
+        if (envDbUrl == null || envDbUrl.trim().isEmpty()) {
+            envDbUrl = System.getenv("DB_URL");
+        }
+
+        String envHost = System.getenv("DB_HOST");
+        String envPort = System.getenv("DB_PORT");
+        String envName = System.getenv("DB_NAME");
+        String envSsl = System.getenv("DB_SSL");
+        String envUser = System.getenv("DB_USER");
+        String envPass = System.getenv("DB_PASSWORD");
+
+        if (envDbUrl != null && !envDbUrl.trim().isEmpty()) {
+            url = envDbUrl.trim();
+            System.out.println("[DBConnection] URL de BD cargada desde variable de entorno.");
+        } else if (envHost != null && !envHost.trim().isEmpty()) {
+            String host = envHost.trim();
+            String port = (envPort != null && !envPort.trim().isEmpty()) ? envPort.trim() : "4000";
+            String dbName = (envName != null && !envName.trim().isEmpty()) ? envName.trim() : "bd_portafolio";
+            boolean useSsl = envSsl != null && Boolean.parseBoolean(envSsl.trim());
+
+            if (useSsl) {
+                url = String.format(
+                        "jdbc:mysql://%s:%s/%s?useSSL=true&requireSSL=true&enabledTLSProtocols=TLSv1.2,TLSv1.3",
+                        host, port, dbName);
+            } else {
+                url = String.format(
+                        "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
+                        host, port, dbName);
+            }
+            System.out.println("[DBConnection] URL de BD construida desde DB_HOST / DB_PORT / DB_NAME.");
+        }
+
+        if (envUser != null && !envUser.trim().isEmpty()) {
+            user = envUser.trim();
+        }
+        if (envPass != null) {
+            password = envPass.trim();
         }
     }
 
@@ -79,14 +108,11 @@ public class DBConnection {
     }
 
     private static void ejecutarScriptInicial(Connection conn) {
-        // Verificar si las tablas principales ya existen y están completas
-        try (java.sql.Statement checkStmt = conn.createStatement();
-             java.sql.ResultSet rs = checkStmt.executeQuery("SELECT id, nombre_completo FROM usuarios LIMIT 1")) {
-            // La tabla existe y tiene el esquema moderno; no es necesario re-ejecutar el script
+        try (Statement checkStmt = conn.createStatement();
+                ResultSet rs = checkStmt.executeQuery("SELECT id, nombre_completo FROM usuarios LIMIT 1")) {
             System.out.println("[DBConnection] Tablas y esquema verificados (base de datos activa).");
             return;
         } catch (SQLException e) {
-            // La tabla no existe o tiene esquema antiguo, procedemos a inicializar con el script
             System.out.println("[DBConnection] Inicializando esquema de base de datos desde bd_portafolio.sql...");
         }
 
@@ -95,15 +121,13 @@ public class DBConnection {
                 System.err.println("[DBConnection] No se encontró el recurso bd_portafolio.sql en classpath.");
                 return;
             }
-            try (java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8));
-                 java.sql.Statement stmt = conn.createStatement()) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                    Statement stmt = conn.createStatement()) {
 
                 StringBuilder currentQuery = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String trimmed = line.trim();
-                    // Omitir líneas de comentario y vacías
                     if (trimmed.isEmpty() || trimmed.startsWith("--") || trimmed.startsWith("/*")) {
                         continue;
                     }
@@ -117,7 +141,6 @@ public class DBConnection {
                             try {
                                 stmt.execute(query);
                             } catch (SQLException ex) {
-                                // Avisar de cualquier error no crítico (ej. base de datos ya existente)
                                 System.err.println("[DBConnection] Nota ejecutando sentencia: " + ex.getMessage());
                             }
                         }
